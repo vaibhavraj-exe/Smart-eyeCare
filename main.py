@@ -85,8 +85,6 @@ def activityCheck(timer) :
                 timer.cancel()
                 # print("Found not working")
                 waitingForReset()
-            else :
-                # print("Found woking")
 
 def waitingForReset() :
     while 1 :
