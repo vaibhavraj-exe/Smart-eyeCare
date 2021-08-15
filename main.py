@@ -33,24 +33,25 @@ def getIdleTime():
 
 n = ToastNotifier()
 
+
 def eyeNotify() :
 
     n.show_toast(
-    "EYE CARE TIME !", 
-    "Give your eyes some rest, breath in and relax or go for a walk", 
-    duration = 20,
+    title="EYE CARE TIME !", 
+    msg="Give your eyes some rest, breath in and relax or go for a walk", 
+    duration = 5,
     icon_path =base_path + "eye.ico",
-    threaded=True
+    threaded=True,
     )
-
+    print("here now")
     time.sleep(breakDuration)
 
     if breakDuration != 0 :
         n.show_toast(
         "BACK TO WORK !", 
         "You can get back to work now", 
-        duration = 20,
-        icon_path ="eye.ico",
+        duration = 5,
+        icon_path =base_path + "eye.ico",
         threaded=True
         )
 
@@ -125,7 +126,7 @@ def startButtonClicked():
 window = Tk()
 
 window.wm_title("Smart eyeCare")
-window.iconbitmap("eye.ico")
+window.iconbitmap(base_path + "eye.ico")
 
 window.geometry("703x500")
 window.configure(bg = "#ffffff")
@@ -158,7 +159,7 @@ entry0.place(
 
 entry0.insert(END, '25')
 
-entry1_img = PhotoImage(file = f"img_textBox1.png")
+entry1_img = PhotoImage(file = base_path + "img_textBox1.png")
 entry1_bg = canvas.create_image(
     458.5, 266.0,
     image = entry1_img)
@@ -177,7 +178,7 @@ entry1.place(
 
 entry1.insert(END, '2')
 
-entry2_img = PhotoImage(file = f"img_textBox2.png")
+entry2_img = PhotoImage(file = base_path + "img_textBox2.png")
 entry2_bg = canvas.create_image(
     458.5, 341.0,
     image = entry2_img)
@@ -196,8 +197,8 @@ entry2.place(
 
 entry2.insert(END, '10')
 
-img2 = PhotoImage(file = f"img2.png")
-img0 = PhotoImage(file = f"img0.png")
+img2 = PhotoImage(file = base_path + "img2.png")
+img0 = PhotoImage(file = base_path + "img0.png")
 b0 = Button(
     image = img0,
     borderwidth = 0,
@@ -224,7 +225,7 @@ b0.place(
 #     height = 42)
 
 
-background_img = PhotoImage(file = f"background.png")
+background_img = PhotoImage(file = base_path + "background.png")
 background = canvas.create_image(
     316.0, 175.0,
     image=background_img)
@@ -243,7 +244,7 @@ def show_window(icon, item):
 
 def withdraw_window():  
     window.withdraw()
-    image = Image.open("eye.ico")
+    image = Image.open(base_path + "eye.ico")
     menu = (item('Quit', quit_window), item('Show', show_window))
     global icon;
     icon = pystray.Icon("name", image, "Smart eyeCare", menu)
