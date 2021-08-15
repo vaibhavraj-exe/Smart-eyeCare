@@ -38,7 +38,7 @@ def eyeNotify() :
 
     n.show_toast(
     title="EYE CARE TIME !", 
-    msg="Give your eyes some rest, breath in and relax or go for a walk", 
+    msg="Time to take your eyes off the screen for " + (str(breakDuration/60) if breakDuration != 0 else "few") + " minutes", 
     duration = 5,
     icon_path =base_path + "eye.ico",
     threaded=True,
@@ -54,7 +54,6 @@ def eyeNotify() :
         icon_path =base_path + "eye.ico",
         threaded=True
         )
-
     activityCheck(timerStart())
 
 def timerStart(timeElapsed=0) :
@@ -106,6 +105,15 @@ def startButtonClicked():
         # activityCheck(timerStart())
 
         backgroundThreadRunner()
+
+        n.show_toast(
+        title="eyeCare Timer Set", 
+        msg="Your eyeCare timer is set to " + str(promptInterval/60) + " minutes", 
+        duration = 5,
+        icon_path =base_path + "eye.ico",
+        threaded=True,
+    )
+
         withdraw_window()
     else :
         icon.stop()
