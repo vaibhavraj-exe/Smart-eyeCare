@@ -7,6 +7,14 @@
 This app reminds you to take your eyes off the screen but only when you are working on your PC so you can just let it run in the background.
 ## Screenshots
 
-![Alt text](https://raw.github.com/Dev-VRaj/Smart-eyeCare/main/Screenshots/Screenshot1.jpg?raw=true)
+![App Screenshot](https://raw.github.com/Dev-VRaj/Smart-eyeCare/main/Screenshots/Screenshot1.png)
+Three customizable variables : Break interval, Break duration, Idle time threshold
 
-![Alt text](https://raw.github.com/Dev-VRaj/Smart-eyeCare/main/Screenshots/Screenshot1.png)
+![App Screenshot](https://raw.github.com/Dev-VRaj/Smart-eyeCare/main/Screenshots/Screenshot2.png)
+Works in background
+
+![App Screenshot](https://raw.github.com/Dev-VRaj/Smart-eyeCare/main/Screenshots/Screenshot3.png)
+Notifications to remind you to take off your eyes off the screen
+
+![App Screenshot](https://raw.github.com/Dev-VRaj/Smart-eyeCare/main/Screenshots/Screenshot4.png)
+Notifications to let you know when to come back
