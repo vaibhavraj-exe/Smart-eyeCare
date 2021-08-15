@@ -1,1 +1,1 @@
-thread stopped
+(promptInterval < promptIntervalOldValue  and threads > 1)

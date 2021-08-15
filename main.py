@@ -6,12 +6,13 @@ from win10toast import ToastNotifier
 from pystray import MenuItem as item
 import pystray
 from PIL import Image
+import sys
 
 
 
 
 def backgroundThreadRunner() :
-    threading.Thread(target=start).start()
+    threading.Thread(target=start, daemon=True).start()
 
 def start() :
     activityCheck(timerStart())
@@ -23,7 +24,9 @@ promptInterval = 25*60;
 breakDuration = 2*60;
 idleThreshold = 10*60;
 threads = 0;
-stopThread = False;
+startButton = True
+
+base_path = getattr(sys, '_MEIPASS','.')+'/'
 
 def getIdleTime():
     return (win32api.GetTickCount() - win32api.GetLastInputInfo()) / 1000.0
@@ -32,26 +35,26 @@ n = ToastNotifier()
 
 def eyeNotify() :
 
-    if stopThread != True :
-        n.show_toast(
-        "EYE CARE TIME !", 
-        "Give your eyes some rest, breath in and relax or go for a walk", 
-        duration = 20,
-        icon_path ="C:\SSD Storage\Coding Stuff\C++\Eye care app\graphic_designer_N0H_icon.ico",
-        threaded=True
-        )
+    n.show_toast(
+    "EYE CARE TIME !", 
+    "Give your eyes some rest, breath in and relax or go for a walk", 
+    duration = 20,
+    icon_path =base_path + "eye.ico",
+    threaded=True
+    )
 
-        time.sleep(breakDuration)
+    time.sleep(breakDuration)
 
+    if breakDuration != 0 :
         n.show_toast(
         "BACK TO WORK !", 
         "You can get back to work now", 
         duration = 20,
-        icon_path ="C:\SSD Storage\Coding Stuff\C++\Eye care app\graphic_designer_N0H_icon.ico",
+        icon_path ="eye.ico",
         threaded=True
         )
 
-        activityCheck(timerStart())
+    activityCheck(timerStart())
 
 def timerStart(timeElapsed=0) :
     timer = threading.Timer(promptInterval-timeElapsed, eyeNotify)
@@ -64,27 +67,14 @@ def activityCheck(timer) :
     global threads;
     while 1 :
         # print("threads running : ", threading.active_count())
-        
             
         time.sleep(idleThreshold)
 
-        # for thread in threading.enumerate(): 
-        #     print(thread.name)
-
-        # print(getIdleTime())
         idleTime = getIdleTime()
-
-        if threads > 1 :
-            threads -= 1;
-            break
-        elif stopThread == True :
-            stopThread = False
-            break
-        else :
-            if idleTime >= idleThreshold :
-                timer.cancel()
-                # print("Found not working")
-                waitingForReset()
+        if idleTime >= idleThreshold :
+            timer.cancel()
+            # print("Found not working")
+            waitingForReset()
 
 def waitingForReset() :
     while 1 :
@@ -98,42 +88,44 @@ def waitingForReset() :
 
 # GUI Link
 
-def stopButtonClicked():
-    # print("Stop")
-    global stopThread;
-    stopThread = True;
-
 
 def startButtonClicked():
-    # print("Start")
-    # print(float(entry0.get()), float(entry1.get()), float(entry2.get()))
-    global promptInterval, breakDuration, idleThreshold
-    promptInterval = float(entry0.get())*60;
-    breakDuration = float(entry1.get())*60;
-    idleThreshold = float(entry2.get())*60;
+    global startButton
+    if startButton == True :
+        startButton = False
+        # print("Start")
+        # print(float(entry0.get()), float(entry1.get()), float(entry2.get()))
+        b0.configure(image=img2)
 
-    global threads;
-    threads += 1;
+        global promptInterval, breakDuration, idleThreshold
+        promptInterval = float(entry0.get())*60;
+        breakDuration = float(entry1.get())*60;
+        idleThreshold = float(entry2.get())*60;
 
-    # activityCheck(timerStart())
+        # activityCheck(timerStart())
 
-    backgroundThreadRunner()           
+        backgroundThreadRunner()
+        withdraw_window()
+    else :
+        icon.stop()
+        window.destroy()
 
-def resetButtonClicked():
-    # print("reset")
-    entry0.delete(0, 'end')
-    entry0.insert(END, '25')
-    entry1.delete(0, 'end')
-    entry1.insert(END, '2')
-    entry2.delete(0, 'end')
-    entry2.insert(END, '10')
+# def resetButtonClicked():
+#     # print("reset")
+#     entry0.delete(0, 'end')
+#     entry0.insert(END, '25')
+#     entry1.delete(0, 'end')
+#     entry1.insert(END, '2')
+#     entry2.delete(0, 'end')
+#     entry2.insert(END, '10')
 
 # GUI
 
 
 window = Tk()
 
-window.protocol("WM_DELETE_WINDOW", window.iconify)
+window.wm_title("Smart eyeCare")
+window.iconbitmap("eye.ico")
 
 window.geometry("703x500")
 window.configure(bg = "#ffffff")
@@ -147,7 +139,7 @@ canvas = Canvas(
     relief = "ridge")
 canvas.place(x = 0, y = 0)
 
-entry0_img = PhotoImage(file = f"img_textBox0.png")
+entry0_img = PhotoImage(file = base_path +"img_textBox0.png")
 entry0_bg = canvas.create_image(
     458.5, 190.0,
     image = entry0_img)
@@ -204,6 +196,7 @@ entry2.place(
 
 entry2.insert(END, '10')
 
+img2 = PhotoImage(file = f"img2.png")
 img0 = PhotoImage(file = f"img0.png")
 b0 = Button(
     image = img0,
@@ -217,31 +210,19 @@ b0.place(
     width = 121,
     height = 42)
 
-img1 = PhotoImage(file = f"img1.png")
-b1 = Button(
-    image = img1,
-    borderwidth = 0,
-    highlightthickness = 0,
-    command = resetButtonClicked,
-    relief = "flat")
+# img1 = PhotoImage(file = f"img1.png")
+# b1 = Button(
+#     image = img1,
+#     borderwidth = 0,
+#     highlightthickness = 0,
+#     command = resetButtonClicked,
+#     relief = "flat")
 
-b1.place(
-    x = 429, y = 415,
-    width = 71,
-    height = 42)
+# b1.place(
+#     x = 429, y = 415,
+#     width = 71,
+#     height = 42)
 
-img2 = PhotoImage(file = f"img2.png")
-b2 = Button(
-    image = img2,
-    borderwidth = 0,
-    highlightthickness = 0,
-    command = stopButtonClicked,
-    relief = "flat")
-
-b2.place(
-    x = 152, y = 415,
-    width = 121,
-    height = 42)
 
 background_img = PhotoImage(file = f"background.png")
 background = canvas.create_image(
@@ -262,9 +243,10 @@ def show_window(icon, item):
 
 def withdraw_window():  
     window.withdraw()
-    image = Image.open("C:\SSD Storage\Coding Stuff\Python\eyeCare App\eye.ico")
+    image = Image.open("eye.ico")
     menu = (item('Quit', quit_window), item('Show', show_window))
-    icon = pystray.Icon("name", image, "title", menu)
+    global icon;
+    icon = pystray.Icon("name", image, "Smart eyeCare", menu)
     icon.run()
 
 window.protocol('WM_DELETE_WINDOW', withdraw_window)
