@@ -15,7 +15,8 @@ def backgroundThreadRunner() :
     threading.Thread(target=start, daemon=True).start()
 
 def start() :
-    activityCheck(timerStart())
+    timer = timerStart()
+    activityCheck()
 
 
 # Logic :
@@ -25,6 +26,8 @@ breakDuration = 2*60;
 idleThreshold = 10*60;
 threads = 0;
 startButton = True
+absoluteAlertTime = 0;
+timer = 0;
 
 base_path = getattr(sys, '_MEIPASS','.')+'/'
 
@@ -36,32 +39,38 @@ n = ToastNotifier()
 
 def eyeNotify() :
 
-    n.show_toast(
-    title="EYE CARE TIME !", 
-    msg="Time to take your eyes off the screen for " + (str(breakDuration/60) if breakDuration != 0 else "few") + " minutes", 
-    duration = 5,
-    icon_path =base_path + "eye.ico",
-    threaded=True,
-    )
-    print("here now")
-    time.sleep(breakDuration)
-
-    if breakDuration != 0 :
+    idleTime = getIdleTime()
+    if idleTime < idleThreshold :
         n.show_toast(
-        "BACK TO WORK !", 
-        "You can get back to work now", 
+        title="EYE CARE TIME !", 
+        msg="Time to take your eyes off the screen for " + (str(breakDuration/60) if breakDuration != 0 else "few") + " minutes", 
         duration = 5,
         icon_path =base_path + "eye.ico",
-        threaded=True
+        threaded=True,
         )
-    activityCheck(timerStart())
+        print("here now")
+        time.sleep(breakDuration)
+
+        if breakDuration != 0 :
+            n.show_toast(
+            "BACK TO WORK !", 
+            "You can get back to work now", 
+            duration = 5,
+            icon_path =base_path + "eye.ico",
+            threaded=True
+            )
+        activityCheck(timerStart())
+    else :
+        timer.cancel()
+        waitingForReset()
 
 def timerStart(timeElapsed=0) :
+    global timer;
     timer = threading.Timer(promptInterval-timeElapsed, eyeNotify)
     timer.start()
     return timer
 
-def activityCheck(timer) :
+def activityCheck() :
     # print(promptInterval, breakDuration, idleThreshold)
     global stopThread;
     global threads;
@@ -114,21 +123,21 @@ def startButtonClicked():
         threaded=True,
     )
 
-        withdraw_window()
+        canvas.itemconfig(background, state='hidden')
+        canvas.itemconfig(entry0_bg, state='hidden')
+        canvas.itemconfig(entry1_bg, state='hidden')
+        canvas.itemconfig(entry2_bg, state='hidden')
+        entry0.destroy()
+        entry1.destroy()
+        entry2.destroy()
+
+        canvas.itemconfig(background1, state='normal')
+        canvas.itemconfig(hh, state='normal')
+        canvas.itemconfig(mm, state='normal')
+        canvas.itemconfig(ss, state='normal')
+        # withdraw_window()
     else :
-        icon.stop()
         window.destroy()
-
-# def resetButtonClicked():
-#     # print("reset")
-#     entry0.delete(0, 'end')
-#     entry0.insert(END, '25')
-#     entry1.delete(0, 'end')
-#     entry1.insert(END, '2')
-#     entry2.delete(0, 'end')
-#     entry2.insert(END, '10')
-
-# GUI
 
 
 window = Tk()
@@ -237,6 +246,37 @@ background_img = PhotoImage(file = base_path + "background.png")
 background = canvas.create_image(
     316.0, 175.0,
     image=background_img)
+
+
+
+# Second page
+
+background_img1 = PhotoImage(file = base_path + "background1.png")
+background1 = canvas.create_image(
+    293.5, 175.0,
+    image=background_img1)
+canvas.itemconfig(background1, state='hidden')
+
+hh = canvas.create_text(
+    250.0, 290.5,
+    text = "60",
+    fill = "#2f423f",
+    font = ("Nunito-SemiBold", int(48.0)))
+canvas.itemconfig(hh, state='hidden')
+
+mm = canvas.create_text(
+    352.0, 290.5,
+    text = "60",
+    fill = "#2f423f",
+    font = ("Nunito-SemiBold", int(48.0)))
+canvas.itemconfig(mm, state='hidden')
+
+ss = canvas.create_text(
+    453.0, 290.5,
+    text = "60",
+    fill = "#2f423f",
+    font = ("Nunito-SemiBold", int(48.0)))
+canvas.itemconfig(ss, state='hidden')
 
 
 
