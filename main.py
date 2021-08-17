@@ -44,7 +44,7 @@ def eyeNotify() :
     idleTime = getIdleTime()
     if idleTime < idleThreshold :
         n.show_toast(
-        title="EYE CARE TIME !", 
+        title="eyeCare Time !", 
         msg="Time to take your eyes off the screen for " + (str(breakDuration/60) if breakDuration != 0 else "few") + " minutes", 
         duration = 5,
         icon_path =base_path + "eye.ico",
@@ -62,7 +62,7 @@ def eyeNotify() :
 
         if breakDuration != 0 :
             n.show_toast(
-            "BACK TO WORK !", 
+            "Back to Work !", 
             "You can get back to work now", 
             duration = 5,
             icon_path =base_path + "eye.ico",
@@ -185,7 +185,7 @@ def startButtonClicked():
 
         n.show_toast(
         title="eyeCare Timer Set", 
-        msg="Your eyeCare timer is set to " + str(promptInterval/60) + " minutes", 
+        msg="Your eyeCare timer is set \n You can close the program now and access it later in the system tray", 
         duration = 5,
         icon_path =base_path + "eye.ico",
         threaded=True,
