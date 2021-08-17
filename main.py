@@ -50,8 +50,14 @@ def eyeNotify() :
         icon_path =base_path + "eye.ico",
         threaded=True,
         )
+
+
         global absoluteBreakTime;
         absoluteBreakTime = datetime.datetime.now() + datetime.timedelta(seconds=breakDuration)
+
+        canvas.itemconfig(timeRemainingText, state='hidden')
+        canvas.itemconfig(breakTimeRemainingText, state='normal')
+
         time.sleep(breakDuration)
 
         if breakDuration != 0 :
@@ -92,15 +98,30 @@ def activityCheck() :
             waitingForReset()
 
 def waitingForReset() :
+    canvas.itemconfig(hh, state='hidden')
+    canvas.itemconfig(mm, state='hidden')
+    canvas.itemconfig(ss, state='hidden')
+    canvas.itemconfig(background1, state='hidden')
+    canvas.itemconfig(timeRemainingText, state='hidden')
+    canvas.itemconfig(breakTimeRemainingText, state='hidden')
+    canvas.itemconfig(standbyPage, state='normal')
+
     while 1 :
         time.sleep(idleThreshold)
         idleTime = getIdleTime()
 
         if idleTime < idleThreshold :
-            activityCheck(timerStart(idleTime))
-            timerDisplay()
+            global timer;
+            timer = timerStart(idleTime)
 
+            canvas.itemconfig(hh, state='normal')
+            canvas.itemconfig(mm, state='normal')
+            canvas.itemconfig(ss, state='normal')
+            canvas.itemconfig(background1, state='normal')
+            canvas.itemconfig(timeRemainingText, state='normal')
+            canvas.itemconfig(standbyPage, state='hidden')
 
+            activityCheck()
 
 # GUI Link
 
@@ -109,9 +130,6 @@ def timerDisplay() :
         timeRemaining = absoluteAlertTime - datetime.datetime.now()
 
         if timeRemaining.days >= 0:
-
-            canvas.itemconfig(timeRemainingText, state='normal')
-            canvas.itemconfig(breakTimeRemainingText, state='hidden')
 
             timeRemaining = timeRemaining.seconds
 
@@ -124,14 +142,12 @@ def timerDisplay() :
             canvas.itemconfig(mm, text=minute)
             canvas.itemconfig(ss, text=second)
 
-            print(hour, minute, second)
+            # print(hour, minute, second)
 
             window.update()
 
             time.sleep(1)
         else :
-            canvas.itemconfig(timeRemainingText, state='hidden')
-            canvas.itemconfig(breakTimeRemainingText, state='normal')
 
             breakTimeRemaining = (absoluteBreakTime - datetime.datetime.now()).seconds
 
@@ -144,7 +160,7 @@ def timerDisplay() :
             canvas.itemconfig(mm, text=minute)
             canvas.itemconfig(ss, text=second)
 
-            print(hour, minute, second)
+            # print(hour, minute, second)
 
             window.update()
 
@@ -194,6 +210,8 @@ def startButtonClicked():
     else :
         window.destroy()
 
+
+# GUI
 
 window = Tk()
 
@@ -349,6 +367,11 @@ canvas.itemconfig(ss, state='hidden')
 
 # Third page (standby)
 
+standby_img = PhotoImage(file = base_path + "StandbyBackground.png")
+standbyPage = canvas.create_image(
+    301.5, 180.0,
+    image=standby_img)
+canvas.itemconfig(standbyPage, state='hidden')
 
 # Show in system tray
 
