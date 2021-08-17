@@ -1,1 +1,1 @@
-(promptInterval < promptIntervalOldValue  and threads > 1)
+canvas.itemconfig(hh, state='hidden')

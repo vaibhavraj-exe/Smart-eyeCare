@@ -7,6 +7,7 @@ from pystray import MenuItem as item
 import pystray
 from PIL import Image
 import sys
+import datetime
 
 
 
@@ -27,6 +28,7 @@ idleThreshold = 10*60;
 threads = 0;
 startButton = True
 absoluteAlertTime = 0;
+absoluteBreakTime = 0;
 timer = 0;
 
 base_path = getattr(sys, '_MEIPASS','.')+'/'
@@ -48,7 +50,8 @@ def eyeNotify() :
         icon_path =base_path + "eye.ico",
         threaded=True,
         )
-        print("here now")
+        global absoluteBreakTime;
+        absoluteBreakTime = datetime.datetime.now() + datetime.timedelta(seconds=breakDuration)
         time.sleep(breakDuration)
 
         if breakDuration != 0 :
@@ -59,15 +62,18 @@ def eyeNotify() :
             icon_path =base_path + "eye.ico",
             threaded=True
             )
-        activityCheck(timerStart())
+        global timer;
+        timer = timerStart()
+        activityCheck()
     else :
         timer.cancel()
         waitingForReset()
 
 def timerStart(timeElapsed=0) :
-    global timer;
+    global timer, absoluteAlertTime;
     timer = threading.Timer(promptInterval-timeElapsed, eyeNotify)
     timer.start()
+    absoluteAlertTime = datetime.datetime.now() + datetime.timedelta(seconds=promptInterval)
     return timer
 
 def activityCheck() :
@@ -92,11 +98,57 @@ def waitingForReset() :
 
         if idleTime < idleThreshold :
             activityCheck(timerStart(idleTime))
+            timerDisplay()
 
 
 
 # GUI Link
 
+def timerDisplay() :
+    while 1 :
+        timeRemaining = absoluteAlertTime - datetime.datetime.now()
+
+        if timeRemaining.days >= 0:
+
+            canvas.itemconfig(timeRemainingText, state='normal')
+            canvas.itemconfig(breakTimeRemainingText, state='hidden')
+
+            timeRemaining = timeRemaining.seconds
+
+            minute,second = (timeRemaining // 60 , timeRemaining % 60)
+            hour =0
+            if minute > 60:
+                hour , minute = (minute // 60 , minute % 60)
+
+            canvas.itemconfig(hh, text=hour)
+            canvas.itemconfig(mm, text=minute)
+            canvas.itemconfig(ss, text=second)
+
+            print(hour, minute, second)
+
+            window.update()
+
+            time.sleep(1)
+        else :
+            canvas.itemconfig(timeRemainingText, state='hidden')
+            canvas.itemconfig(breakTimeRemainingText, state='normal')
+
+            breakTimeRemaining = (absoluteBreakTime - datetime.datetime.now()).seconds
+
+            minute,second = (breakTimeRemaining // 60 , breakTimeRemaining % 60)
+            hour =0
+            if minute > 60:
+                hour , minute = (minute // 60 , minute % 60)
+
+            canvas.itemconfig(hh, text=hour)
+            canvas.itemconfig(mm, text=minute)
+            canvas.itemconfig(ss, text=second)
+
+            print(hour, minute, second)
+
+            window.update()
+
+            time.sleep(1)
 
 def startButtonClicked():
     global startButton
@@ -135,7 +187,10 @@ def startButtonClicked():
         canvas.itemconfig(hh, state='normal')
         canvas.itemconfig(mm, state='normal')
         canvas.itemconfig(ss, state='normal')
-        # withdraw_window()
+        canvas.itemconfig(timeRemainingText, state='normal')
+
+        # timerDisplay()
+        threading.Thread(target=timerDisplay, daemon=True).start()
     else :
         window.destroy()
 
@@ -257,6 +312,20 @@ background1 = canvas.create_image(
     image=background_img1)
 canvas.itemconfig(background1, state='hidden')
 
+timeRemainingText = canvas.create_text(
+    360, 233.5,
+    text = "Time remaining :",
+    fill = "#2f423f",
+    font = ("Nunito-SemiBold", int(24.0)))
+canvas.itemconfig(timeRemainingText, state='hidden')
+
+breakTimeRemainingText = canvas.create_text(
+365.0, 233.5,
+text = "Break time remaining :",
+fill = "#2f423f",
+font = ("Nunito-SemiBold", int(24.0)))
+canvas.itemconfig(breakTimeRemainingText, state='hidden')
+
 hh = canvas.create_text(
     250.0, 290.5,
     text = "60",
@@ -278,6 +347,7 @@ ss = canvas.create_text(
     font = ("Nunito-SemiBold", int(48.0)))
 canvas.itemconfig(ss, state='hidden')
 
+# Third page (standby)
 
 
 # Show in system tray
