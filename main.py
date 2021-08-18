@@ -68,6 +68,7 @@ def eyeNotify() :
             threaded=True
             )
         global timer;
+        whatIsHappening = "timerCountDown"
         timer = timerStart()
         activityCheck()
     else :
