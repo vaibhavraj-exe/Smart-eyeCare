@@ -19,3 +19,7 @@ This app reminds you to take your eyes off the screen but only when you are work
 
 ![App Screenshot](https://raw.github.com/Dev-VRaj/Smart-eyeCare/main/Screenshots/Screenshot4.png)
 - Notifications to let you know when to come back
+
+![App Screenshot](https://raw.github.com/Dev-VRaj/Smart-eyeCare/main/Screenshots/Screenshot5.png)
+![App Screenshot](https://raw.github.com/Dev-VRaj/Smart-eyeCare/main/Screenshots/Screenshot6.png)
+- Track Your time
