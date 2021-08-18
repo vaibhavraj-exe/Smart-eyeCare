@@ -30,11 +30,12 @@ startButton = True
 absoluteAlertTime = 0;
 absoluteBreakTime = 0;
 timer = 0;
+whatIsHappening = "nothing"
 
 base_path = getattr(sys, '_MEIPASS','.')+'/'
 
 def getIdleTime():
-    return (win32api.GetTickCount() - win32api.GetLastInputInfo()) / 1000.0
+    return (win32api.GetTickCount() - win32api.GetLastInputInfo()) // 1000
 
 n = ToastNotifier()
 
@@ -51,12 +52,10 @@ def eyeNotify() :
         threaded=True,
         )
 
-
-        global absoluteBreakTime;
+        global absoluteBreakTime, whatIsHappening;
         absoluteBreakTime = datetime.datetime.now() + datetime.timedelta(seconds=breakDuration)
 
-        canvas.itemconfig(timeRemainingText, state='hidden')
-        canvas.itemconfig(breakTimeRemainingText, state='normal')
+        whatIsHappening = "breakTimerCountDown"
 
         time.sleep(breakDuration)
 
@@ -98,13 +97,10 @@ def activityCheck() :
             waitingForReset()
 
 def waitingForReset() :
-    canvas.itemconfig(hh, state='hidden')
-    canvas.itemconfig(mm, state='hidden')
-    canvas.itemconfig(ss, state='hidden')
-    canvas.itemconfig(background1, state='hidden')
-    canvas.itemconfig(timeRemainingText, state='hidden')
-    canvas.itemconfig(breakTimeRemainingText, state='hidden')
-    canvas.itemconfig(standbyPage, state='normal')
+    
+    
+    global whatIsHappening;
+    whatIsHappening = "standbyMode"
 
     while 1 :
         time.sleep(idleThreshold)
@@ -112,15 +108,11 @@ def waitingForReset() :
 
         if idleTime < idleThreshold :
             global timer;
+            
             timer = timerStart(idleTime)
 
-            canvas.itemconfig(hh, state='normal')
-            canvas.itemconfig(mm, state='normal')
-            canvas.itemconfig(ss, state='normal')
-            canvas.itemconfig(background1, state='normal')
-            canvas.itemconfig(timeRemainingText, state='normal')
-            canvas.itemconfig(standbyPage, state='hidden')
-
+           
+            whatIsHappening = "timerCountDown"
             activityCheck()
 
 # GUI Link
@@ -129,7 +121,17 @@ def timerDisplay() :
     while 1 :
         timeRemaining = absoluteAlertTime - datetime.datetime.now()
 
-        if timeRemaining.days >= 0:
+
+        if timeRemaining.days >= 0 and whatIsHappening == "timerCountDown" :
+
+            canvas.itemconfig(standbyPage, state='hidden')
+            canvas.itemconfig(breakTimeRemainingText, state='hidden')
+            canvas.itemconfig(hh, state='normal')
+            canvas.itemconfig(mm, state='normal')
+            canvas.itemconfig(ss, state='normal')
+            canvas.itemconfig(background1, state='normal')
+            canvas.itemconfig(timeRemainingText, state='normal')
+
 
             timeRemaining = timeRemaining.seconds
 
@@ -147,7 +149,15 @@ def timerDisplay() :
             window.update()
 
             time.sleep(1)
-        else :
+        elif whatIsHappening == "breakTimerCountDown" :
+
+            canvas.itemconfig(standbyPage, state='hidden')
+            canvas.itemconfig(timeRemainingText, state='hidden')
+            canvas.itemconfig(hh, state='normal')
+            canvas.itemconfig(mm, state='normal')
+            canvas.itemconfig(ss, state='normal')
+            canvas.itemconfig(background1, state='normal')
+            canvas.itemconfig(breakTimeRemainingText, state='normal')
 
             breakTimeRemaining = (absoluteBreakTime - datetime.datetime.now()).seconds
 
@@ -164,6 +174,19 @@ def timerDisplay() :
 
             window.update()
 
+            time.sleep(1)
+
+        elif whatIsHappening == "standbyMode" :
+            canvas.itemconfig(hh, state='hidden')
+            canvas.itemconfig(mm, state='hidden')
+            canvas.itemconfig(ss, state='hidden')
+            canvas.itemconfig(background1, state='hidden')
+            canvas.itemconfig(timeRemainingText, state='hidden')
+            canvas.itemconfig(breakTimeRemainingText, state='hidden')
+            canvas.itemconfig(standbyPage, state='normal')
+
+            time.sleep(1)
+        else :
             time.sleep(1)
 
 def startButtonClicked():
@@ -206,6 +229,8 @@ def startButtonClicked():
         canvas.itemconfig(timeRemainingText, state='normal')
 
         # timerDisplay()
+        global whatIsHappening
+        whatIsHappening = "timerCountDown"
         threading.Thread(target=timerDisplay, daemon=True).start()
     else :
         window.destroy()
@@ -383,12 +408,18 @@ def show_window(icon, item):
     icon.stop()
     window.after(0,window.deiconify)
 
+
+    global whatIsHappening
+    timeRemaining = absoluteAlertTime - datetime.datetime.now()
+    whatIsHappening = ("timerCountDown" if timeRemaining.days >= 0 else "breakTimerCountDown")
+    
+
 def withdraw_window():  
     window.withdraw()
     image = Image.open(base_path + "eye.ico")
     menu = (item('Quit', quit_window), item('Show', show_window))
     global icon;
-    icon = pystray.Icon("name", image, "Smart eyeCare", menu)
+    icon = pystray.Icon("Smart eyeCare", image, "Smart eyeCare", menu)
     icon.run()
 
 window.protocol('WM_DELETE_WINDOW', withdraw_window)

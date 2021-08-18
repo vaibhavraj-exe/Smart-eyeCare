@@ -1,1 +1,1 @@
-canvas.itemconfig(hh, state='hidden')
+standbyMode
