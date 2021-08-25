@@ -1,1 +1,1 @@
-standbyMode
+timerStart

@@ -24,7 +24,7 @@ def start() :
 
 promptInterval = 25*60;
 breakDuration = 2*60;
-idleThreshold = 10*60;
+idleThreshold = 5*60;
 threads = 0;
 startButton = True
 absoluteAlertTime = 0;
@@ -75,9 +75,9 @@ def eyeNotify() :
         timer.cancel()
         waitingForReset()
 
-def timerStart(timeElapsed=0) :
+def timerStart() :
     global timer, absoluteAlertTime;
-    timer = threading.Timer(promptInterval-timeElapsed, eyeNotify)
+    timer = threading.Timer(promptInterval, eyeNotify)
     timer.start()
     absoluteAlertTime = datetime.datetime.now() + datetime.timedelta(seconds=promptInterval)
     return timer
@@ -104,13 +104,13 @@ def waitingForReset() :
     whatIsHappening = "standbyMode"
 
     while 1 :
-        time.sleep(idleThreshold)
+        time.sleep(1)
         idleTime = getIdleTime()
 
-        if idleTime < idleThreshold :
+        if idleTime < 1 :
             global timer;
-            
-            timer = timerStart(idleTime)
+            timer.cancel()
+            timer = timerStart()
 
            
             whatIsHappening = "timerCountDown"
@@ -192,47 +192,46 @@ def timerDisplay() :
 
 def startButtonClicked():
     global startButton
+    global promptInterval, breakDuration, idleThreshold
+    
     if startButton == True :
-        startButton = False
-        # print("Start")
-        # print(float(entry0.get()), float(entry1.get()), float(entry2.get()))
-        b0.configure(image=img2)
 
-        global promptInterval, breakDuration, idleThreshold
         promptInterval = float(entry0.get())*60;
         breakDuration = float(entry1.get())*60;
         idleThreshold = float(entry2.get())*60;
 
-        # activityCheck(timerStart())
+        if idleThreshold > 0.1 and promptInterval > 5 :
+            startButton = False
+            b0.configure(image=img2)
 
-        backgroundThreadRunner()
+            backgroundThreadRunner()
 
-        n.show_toast(
-        title="eyeCare Timer Set", 
-        msg="Your eyeCare timer is set \n You can close the program now and access it later in the system tray", 
-        duration = 5,
-        icon_path =base_path + "eye.ico",
-        threaded=True,
-    )
+            n.show_toast(
+            title="eyeCare Timer Set", 
+            msg="Your eyeCare timer is set \n You can close the program now and access it later in the system tray", 
+            duration = 5,
+            icon_path =base_path + "eye.ico",
+            threaded=True,
+        )
 
-        canvas.itemconfig(background, state='hidden')
-        canvas.itemconfig(entry0_bg, state='hidden')
-        canvas.itemconfig(entry1_bg, state='hidden')
-        canvas.itemconfig(entry2_bg, state='hidden')
-        entry0.destroy()
-        entry1.destroy()
-        entry2.destroy()
+            canvas.itemconfig(background, state='hidden')
+            canvas.itemconfig(entry0_bg, state='hidden')
+            canvas.itemconfig(entry1_bg, state='hidden')
+            canvas.itemconfig(entry2_bg, state='hidden')
+            entry0.destroy()
+            entry1.destroy()
+            entry2.destroy()
 
-        canvas.itemconfig(background1, state='normal')
-        canvas.itemconfig(hh, state='normal')
-        canvas.itemconfig(mm, state='normal')
-        canvas.itemconfig(ss, state='normal')
-        canvas.itemconfig(timeRemainingText, state='normal')
+            canvas.itemconfig(background1, state='normal')
+            canvas.itemconfig(hh, state='normal')
+            canvas.itemconfig(mm, state='normal')
+            canvas.itemconfig(ss, state='normal')
+            canvas.itemconfig(timeRemainingText, state='normal')
 
-        # timerDisplay()
-        global whatIsHappening
-        whatIsHappening = "timerCountDown"
-        threading.Thread(target=timerDisplay, daemon=True).start()
+            # timerDisplay()
+            global whatIsHappening
+            whatIsHappening = "timerCountDown"
+            threading.Thread(target=timerDisplay, daemon=True).start()
     else :
         window.destroy()
 
@@ -311,7 +310,7 @@ entry2.place(
     width = 57.421875,
     height = 38)
 
-entry2.insert(END, '10')
+entry2.insert(END, '5')
 
 img2 = PhotoImage(file = base_path + "img2.png")
 img0 = PhotoImage(file = base_path + "img0.png")
